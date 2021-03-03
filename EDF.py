@@ -35,8 +35,7 @@ n=len(tasks)
 #Task_Set[1]= c
 #Task_Set[2]= Deadline
 #Task_Set[3]= Period
-for i in tasks:
-    print(i)
+
 
 #Calculating Hyper Perios as LCM
 def LCM(Task_Set):
@@ -57,29 +56,62 @@ def utilization(Task_Set,Len_Task_Set):
     for i in range (n):
         u+=float(Task_Set[i][1]/Task_Set[i][3])
     return u
-#print('utilization of task set is %s'%util,end='\n')
+util=utilization(tasks,n)
+print('utilization of task set is %s'%util,end='\n')
 
-def Virtual_Deadline(tasks,n):
-    U11,U21,U22,x =0,0,0,0
-    for i in range(n):
-        if tasks[i][4]==0:
-            U11 += tasks[i][1]/tasks[i][3]
-        else:
-            U22 += tasks[i][1]/ tasks[i][3]
-            U21 += tasks[i][5]/ tasks[i][3]
-    x = U21 /(1-U11) if U11!=1 else 1
-    summ= x*U11+U22
-    if summ <=1  :
-        for i in range(n):
-            #and  (x * Task_Set[i][3]) > 0 and (x * Task_Set[i][3]) < Task_Set[i][5]
-            if tasks[i][4]==1  :
-                tasks[i][6] =round(x * tasks[i][3],2)
+
+#Job Set created!
+'''
+def Job_Set(Task_Set,Len_Task_Set):
+    Task=Task_Set
+    L=[]
+    S=[]
+    jobs=[]
+    new_job=[]
+    mjob=[]
+
+    for i in range(len(Task)):
+        count=int(lcm/Task[i][3])
+        S=[i + 1,Task[i][0],0,Task[i][1],Task[i][2],Task[i][3],count,'ExeTime']
+        L.append(S)
+        for k in range(L[i][6]):
+            jobs.append(L[i])
+        for x in range(L[i][6]):
+            #r.randint(0, 10),r.randint(0, 10),
+            new_job=[L[i][2]+L[i][5]*x,L[i][3]
+            ,L[i][4]+L[i][5]*x,L[i][5]*(x+1)]
+            mjob.append(new_job)
+    mjob.sort(key = lambda x : x[2])
+    return mjob
+'''
+def Jobs_Set(Task_Set,Len_Task_Set):
+    i=0
+    instances=[]
+    for i in range(Len_Task_Set):
+        j=1
+        while 1:
+            if j*Task_Set[i][3]<=lcm:
+                instances.append([Task_Set[i],j*Task_Set[i][3]])
+                j+=1
             else:
-                tasks[i][6] =tasks[i][2]
-    return sorted(tasks,key=lambda x:x[6])
-VD=Virtual_Deadline(tasks,n)
-for i in VD:
-    print(i)
+                break
+
+
+    return instances
+#Jobs_Set =Jobs_Set(Task_Set,Len_Task_Set)
+#Len_Jobs_Set=len(Jobs_Set)
+
+'''
+for i in range(Len_Jobs_Set):
+
+    tmp = Jobs_Set[i].copy()
+    k = i
+    while k > 0 and tmp[1] < Jobs_Set[k-1][1]:
+        Jobs_Set[k] = Jobs_Set[k - 1].copy()
+        k -= 1
+    Jobs_Set[k] = tmp.copy()
+'''
+
 
 def TimeLeft(Task_Set,Len_Task_Set):
     time_left=[]
@@ -92,20 +124,12 @@ def TimeLeft(Task_Set,Len_Task_Set):
 timeLeft=TimeLeft(tasks,n)
 print('\nTime left set:\n%s'%timeLeft)
 
-def HI_Crit(tasks,n):
-    task=[]
-    for i in range(n):
-        if tasks[i][4]==1:
-            task.append(tasks[i])
-    return task
 
-#print('HIIII:\n%s'%HI_Crit(tasks,n))
 
-def EDF(tasks,n,lcm):
+def EDF(tasks,n,lcm,util):
     #Jobs=Jobs_Set(Task_Set,Len_Task_Set)
-    util=utilization(tasks,n)
+
     i=0
-    level=0
     instances=[]
     for i in range(n):
         j=1
@@ -133,14 +157,14 @@ def EDF(tasks,n,lcm):
     time=0
 
     #current_job=[]
-    while(time <lcm and level==0):
+    while(time <lcm):
         #print(time)
         if util <=1:
 
             while time<lcm:
                 for i in range(n):
-                    if time>1 and ((time%tasks[i][2]==0 and time>tasks[i][7]) or
-                    time==tasks[i][7]):
+                    if time>1 and ((time%tasks[i][2]==0 and time>tasks[i][4]) or
+                    time==tasks[i][4]):
                         #print("true ", end='')
                         timeLeft[i]=tasks[i][1]
                 anyrun=0
@@ -192,4 +216,9 @@ def EDF(tasks,n,lcm):
         else:
             print('Task set is not feasible')
             break
-EDF(tasks,n,lcm)
+
+
+    #print(current_job)
+
+EDF(tasks,n,lcm,util)
+
